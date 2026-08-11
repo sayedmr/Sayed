@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>মেসের হিসাব খাতা</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ece3ce;
+    --paper-dark:#e1d5b8;
+    --paper-darker:#d6c8a6;
+    --ink:#2b2620;
+    --ink-light:#6b6151;
+    --rule:#b7c3cf;
+    --margin-red:#a83f36;
+    --margin-red-dim:#a83f3655;
+    --brass:#8f6c2f;
+    --brass-light:#c9a55c;
+    --green:#3f6b4a;
+    --green-bg:#e4ead9;
+    --red-neg:#a13a2e;
+    --red-neg-bg:#f1ded9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(180deg, transparent 0 34px, var(--rule) 34px 35px);
+    background-position: 0 92px;
+    font-family:'Hind Siliguri', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .margin-line{
+    position:fixed;
+    top:0; bottom:0; left:64px;
+    width:2px;
+    background:var(--margin-red-dim);
+    z-index:0;
+  }
+  header{
+    position:relative;
+    padding:36px 40px 22px 92px;
+    background:linear-gradient(180deg, var(--paper) 60%, transparent);
+  }
+  header h1{
+    font-family:'Tiro Bangla', serif;
+    font-size:36px;
+    margin:0 0 4px 0;
+    color:var(--ink);
+    letter-spacing:0.5px;
+  }
+  header .sub{
+    font-size:14px;
+    color:var(--ink-light);
+    font-style:italic;
+    font-family:'Tiro Bangla', serif;
+  }
+  .stamp-badge{
+    position:absolute;
+    right:40px; top:28px;
+    width:78px; height:78px;
+    border:3px solid var(--brass);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    transform:rotate(-8deg);
+    color:var(--brass);
+    font-family:'Tiro Bangla',serif;
+    font-size:13px;
+    text-align:center;
+    line-height:1.2;
+    opacity:0.75;
+  }
+  nav{
+    position:relative;
+    display:flex;
+    gap:4px;
+    padding:0 40px 0 92px;
+    flex-wrap:wrap;
+    z-index:1;
+  }
+  nav button{
+    font-family:'Hind Siliguri',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    padding:10px 20px 12px 20px;
+    border:none;
+    border-top-left-radius:8px;
+    border-top-right-radius:8px;
+    background:var(--paper-dark);
+    color:var(--ink-light);
+    cursor:pointer;
+    border:1px solid var(--paper-darker);
+    border-bottom:none;
+    position:relative;
+    top:1px;
+  }
+  nav button.active{
+    background:var(--paper);
+    color:var(--margin-red);
+    border-bottom:1px solid var(--paper);
+  }
+  main{
+    position:relative;
+    margin:0 40px 0 92px;
+    background:var(--paper);
+    border:1px solid var(--paper-darker);
+    border-radius:0 8px 8px 8px;
+    padding:30px 34px;
+    z-index:1;
+    min-height:420px;
+  }
+  h2.section-title{
+    font-family:'Tiro Bangla',serif;
+    font-size:22px;
+    margin:0 0 18px 0;
+    color:var(--ink);
+    border-bottom:2px solid var(--margin-red-dim);
+    padding-bottom:10px;
+  }
+  .grid-form{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:flex-end;
+    background:var(--paper-dark);
+    padding:16px;
+    border-radius:6px;
+    margin-bottom:24px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .field label{
+    font-size:12px;
+    color:var(--ink-light);
+    font-weight:600;
+  }
+  .field input, .field select{
+    font-family:'Hind Siliguri',sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-darker);
+    border-radius:5px;
+    background:#fffdf8;
+    color:var(--ink);
+    min-width:110px;
+  }
+  .field input[type=number]{
+    font-family:'JetBrains Mono',monospace;
+    width:90px;
+  }
+  .btn{
+    font-family:'Hind Siliguri',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:9px 18px;
+    border:none;
+    border-radius:5px;
+    background:var(--margin-red);
+    color:#fdf6ee;
+    cursor:pointer;
+  }
+  .btn:hover{background:#8f332c;}
+  .btn.ghost{
+    background:transparent;
+    border:1.5px solid var(--brass);
+    color:var(--brass);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  th, td{
+    padding:9px 10px;
+    text-align:left;
+    border-bottom:1px solid var(--paper-darker);
+  }
+  th{
+    font-weight:700;
+    color:var(--ink-light);
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    border-bottom:2px solid var(--margin-red-dim);
+  }
+  td.num, th.num{
+    font-family:'JetBrains Mono',monospace;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  tr:nth-child(even) td{background:#f4eddc55;}
+  .del-btn{
+    background:none;
+    border:none;
+    color:var(--red-neg);
+    cursor:pointer;
+    font-size:16px;
+    opacity:0.6;
+  }
+  .del-btn:hover{opacity:1;}
+  .total-row td{
+    font-weight:700;
+    border-top:2px solid var(--margin-red-dim);
+    border-bottom:none;
+  }
+  /* dashboard */
+  .stat-row{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:26px;
+  }
+  .stat-card{
+    flex:1;
+    min-width:150px;
+    background:var(--paper-dark);
+    border-radius:8px;
+    padding:14px 16px;
+    border:1px dashed var(--brass-light);
+  }
+  .stat-card .label{
+    font-size:12px;
+    color:var(--ink-light);
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .stat-card .value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .receipts{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:18px;
+  }
+  .receipt{
+    position:relative;
+    background:#fbf6ea;
+    border-radius:4px;
+    padding:18px 18px 20px 18px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.08);
+    border:1px solid var(--paper-darker);
+  }
+  .receipt::before{
+    content:"";
+    position:absolute;
+    top:-6px; left:0; right:0;
+    height:12px;
+    background-image: radial-gradient(circle at center, var(--paper) 4px, transparent 4.5px);
+    background-size:16px 12px;
+    background-repeat:repeat-x;
+  }
+  .receipt .name{
+    font-family:'Tiro Bangla',serif;
+    font-size:19px;
+    margin-bottom:10px;
+    color:var(--ink);
+  }
+  .receipt .row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--ink-light);
+    padding:3px 0;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .receipt .row span:first-child{
+    font-family:'Hind Siliguri',sans-serif;
+    color:var(--ink-light);
+  }
+  .receipt .balance-line{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--paper-darker);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .balance-amt{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;
+    font-weight:700;
+  }
+  .stamp{
+    font-family:'Tiro Bangla',serif;
+    font-size:11px;
+    border:2px solid;
+    border-radius:50%;
+    width:52px;height:52px;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    line-height:1.15;
+    transform:rotate(-10deg);
+    opacity:0.85;
+  }
+  .pos{color:var(--green);}
+  .neg{color:var(--red-neg);}
+  .stamp.pos{border-color:var(--green); color:var(--green);}
+  .stamp.neg{border-color:var(--red-neg); color:var(--red-neg);}
+  .members-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:14px;
+    margin-bottom:20px;
+  }
+  .empty-note{
+    color:var(--ink-light);
+    font-style:italic;
+    font-family:'Tiro Bangla',serif;
+    padding:20px 0;
+  }
+  .loading{
+    padding:40px;
+    text-align:center;
+    color:var(--ink-light);
+    font-family:'Tiro Bangla',serif;
+  }
+  footer.hint{
+    margin:14px 40px 0 92px;
+    font-size:12px;
+    color:var(--ink-light);
+  }
+</style>
+</head>
+<body>
+<div class="margin-line"></div>
+<header>
+  <h1>মেসের হিসাব খাতা</h1>
+  <div class="sub">৭ জনের মিল, বাজার ও খরচের হিসাব — একসাথে, স্বচ্ছভাবে</div>
+  <div class="stamp-badge">সঠিক<br>হিসাব</div>
+</header>
+<nav id="tabs"></nav>
+<main id="main"><div class="loading">খাতা খোলা হচ্ছে...</div></main>
+<footer class="hint">তথ্য স্বয়ংক্রিয়ভাবে সংরক্ষণ হয় — এই ব্রাউজারে ফিরে এলে আগের হিসাব দেখতে পাবেন।</footer>
+
+<script>
+const STORAGE_KEY = 'mess-hisab-data-v1';
+const TABS = [
+  {id:'dashboard', label:'মূল হিসাব'},
+  {id:'meals', label:'মিল'},
+  {id:'bazar', label:'বাজার'},
+  {id:'extra', label:'এক্সট্রা খরচ'},
+  {id:'deposits', label:'জমা'},
+  {id:'members', label:'সদস্য'},
+];
+
+let state = null;
+let activeTab = 'dashboard';
+
+function defaultState(){
+  return {
+    members: ['সদস্য ১','সদস্য ২','সদস্য ৩','সদস্য ৪','সদস্য ৫','সদস্য ৬','সদস্য ৭'],
+    meals: [],   // {id, date, memberIdx, count}
+    bazar: [],   // {id, date, amount, note}
+    extra: [],   // {id, date, name, amount}
+    deposits: [] // {id, date, memberIdx, amount}
+  };
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY);
+    if(res && res.value){
+      state = JSON.parse(res.value);
+      // guard against missing keys if schema evolves
+      const d = defaultState();
+      state = Object.assign(d, state);
+    } else {
+      state = defaultState();
+    }
+  }catch(e){
+    state = defaultState();
+  }
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.error('সংরক্ষণ ব্যর্থ হয়েছে', e);
+  }
+}
+
+function uid(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function fmt(n){
+  const v = Math.round((n + Number.EPSILON) * 100) / 100;
+  return v.toLocaleString('en-US', {minimumFractionDigits: v % 1 === 0 ? 0 : 2, maximumFractionDigits:2});
+}
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+// ---------- calculations ----------
+function calc(){
+  const n = state.members.length;
+  const totalBazar = state.bazar.reduce((s,b)=>s+Number(b.amount||0),0);
+  const totalMeals = state.meals.reduce((s,m)=>s+Number(m.count||0),0);
+  const mealRate = totalMeals > 0 ? totalBazar / totalMeals : 0;
+  const totalExtra = state.extra.reduce((s,e)=>s+Number(e.amount||0),0);
+  const extraPerPerson = n > 0 ? totalExtra / n : 0;
+
+  const perMember = state.members.map((name, idx)=>{
+    const memberMeals = state.meals.filter(m=>m.memberIdx===idx).reduce((s,m)=>s+Number(m.count||0),0);
+    const memberDeposit = state.deposits.filter(d=>d.memberIdx===idx).reduce((s,d)=>s+Number(d.amount||0),0);
+    const mealCost = memberMeals * mealRate;
+    const totalExpense = mealCost + extraPerPerson;
+    const balance = memberDeposit - totalExpense;
+    return {name, idx, memberMeals, memberDeposit, mealCost, totalExpense, balance};
+  });
+
+  const totalDeposits = state.deposits.reduce((s,d)=>s+Number(d.amount||0),0);
+  const totalExpenseAll = totalBazar + totalExtra;
+  const remainingFunds = totalDeposits - totalExpenseAll;
+
+  return {totalBazar, totalMeals, mealRate, totalExtra, extraPerPerson, perMember, totalDeposits, totalExpenseAll, remainingFunds};
+}
+
+// ---------- render: tabs ----------
+function renderTabs(){
+  const nav = document.getElementById('tabs');
+  nav.innerHTML = '';
+  TABS.forEach(t=>{
+    const btn = document.createElement('button');
+    btn.textContent = t.label;
+    btn.className = t.id === activeTab ? 'active' : '';
+    btn.onclick = ()=>{ activeTab = t.id; render(); };
+    nav.appendChild(btn);
+  });
+}
+
+// ---------- render: dashboard ----------
+function renderDashboard(){
+  const c = calc();
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">সবার হিসাব — এক নজরে</h2>`;
+
+  const stats = document.createElement('div');
+  stats.className = 'stat-row';
+  stats.innerHTML = `
+    <div class="stat-card"><div class="label">মোট বাজার</div><div class="value">৳ ${fmt(c.totalBazar)}</div></div>
+    <div class="stat-card"><div class="label">মোট মিল</div><div class="value">${fmt(c.totalMeals)}</div></div>
+    <div class="stat-card"><div class="label">মিল রেট</div><div class="value">৳ ${fmt(c.mealRate)}</div></div>
+    <div class="stat-card"><div class="label">মোট এক্সট্রা খরচ</div><div class="value">৳ ${fmt(c.totalExtra)}</div></div>
+    <div class="stat-card"><div class="label">জনপ্রতি এক্সট্রা</div><div class="value">৳ ${fmt(c.extraPerPerson)}</div></div>
+  `;
+  el.appendChild(stats);
+
+  const fundsCard = document.createElement('div');
+  const fundsPosNeg = c.remainingFunds >= 0 ? 'pos' : 'neg';
+  fundsCard.className = 'stat-card';
+  fundsCard.style.cssText = 'flex-basis:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; border:1.5px solid var(--brass);';
+  fundsCard.innerHTML = `
+    <div>
+      <div class="label">মেসের হাতে থাকা টাকা (মোট জমা − মোট খরচ)</div>
+      <div style="font-size:12px;color:var(--ink-light);margin-top:2px;">মোট জমা ৳ ${fmt(c.totalDeposits)} − মোট খরচ (বাজার + এক্সট্রা) ৳ ${fmt(c.totalExpenseAll)}</div>
+    </div>
+    <div class="value ${fundsPosNeg}" style="font-size:26px;">৳ ${fmt(c.remainingFunds)}</div>
+  `;
+  el.appendChild(fundsCard);
+
+  const receipts = document.createElement('div');
+  receipts.className = 'receipts';
+  c.perMember.forEach(m=>{
+    const posNeg = m.balance >= 0 ? 'pos' : 'neg';
+    const stampText = m.balance >= 0 ? 'পাবে' : 'দিবে';
+    const card = document.createElement('div');
+    card.className = 'receipt';
+    card.innerHTML = `
+      <div class="name">${escapeHtml(m.name)}</div>
+      <div class="row"><span>মোট মিল</span><span>${fmt(m.memberMeals)}</span></div>
+      <div class="row"><span>জমা</span><span>৳ ${fmt(m.memberDeposit)}</span></div>
+      <div class="row"><span>মিল খরচ</span><span>৳ ${fmt(m.mealCost)}</span></div>
+      <div class="row"><span>এক্সট্রা ভাগ</span><span>৳ ${fmt(c.extraPerPerson)}</span></div>
+      <div class="row"><span>মোট খরচ</span><span>৳ ${fmt(m.totalExpense)}</span></div>
+      <div class="balance-line">
+        <div>
+          <div style="font-size:11px;color:var(--ink-light);">সর্বশেষ ব্যালেন্স</div>
+          <div class="balance-amt ${posNeg}">৳ ${fmt(Math.abs(m.balance))}</div>
+        </div>
+        <div class="stamp ${posNeg}">${stampText}</div>
+      </div>
+    `;
+    receipts.appendChild(card);
+  });
+  el.appendChild(receipts);
+  return el;
+}
+
+// ---------- render: meals ----------
+function renderMeals(){
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">মিল এন্ট্রি</h2>`;
+
+  const form = document.createElement('div');
+  form.className = 'grid-form';
+  let inputsHtml = `
+    <div class="field"><label>তারিখ</label><input type="date" id="meal-date" value="${todayStr()}"></div>
+  `;
+  state.members.forEach((name, idx)=>{
+    inputsHtml += `<div class="field"><label>${escapeHtml(name)}</label><input type="number" step="0.5" min="0" id="meal-count-${idx}" placeholder="0"></div>`;
+  });
+  form.innerHTML = inputsHtml + `<button class="btn" id="add-meal-btn">যোগ করুন</button>`;
+  el.appendChild(form);
+
+  form.querySelector('#add-meal-btn').onclick = ()=>{
+    const date = form.querySelector('#meal-date').value;
+    if(!date){ alert('তারিখ দিন'); return; }
+    // remove existing entries for this date, then add new nonzero entries
+    state.meals = state.meals.filter(m=>m.date !== date);
+    state.members.forEach((name, idx)=>{
+      const val = parseFloat(form.querySelector(`#meal-count-${idx}`).value);
+      if(!isNaN(val) && val > 0){
+        state.meals.push({id:uid(), date, memberIdx:idx, count:val});
+      }
+    });
+    saveState();
+    render();
+  };
+
+  // table: dates as rows, members as columns
+  const dates = [...new Set(state.meals.map(m=>m.date))].sort().reverse();
+  if(dates.length === 0){
+    const p = document.createElement('div');
+    p.className = 'empty-note';
+    p.textContent = 'এখনো কোনো মিল এন্ট্রি নেই।';
+    el.appendChild(p);
+    return el;
+  }
+
+  const table = document.createElement('table');
+  let thead = '<tr><th>তারিখ</th>';
+  state.members.forEach(name=> thead += `<th class="num">${escapeHtml(name)}</th>`);
+  thead += '<th class="num">মোট</th><th></th></tr>';
+
+  let tbody = '';
+  const colTotals = state.members.map(()=>0);
+  dates.forEach(date=>{
+    let rowTotal = 0;
+    let row = `<tr><td>${date}</td>`;
+    state.members.forEach((name, idx)=>{
+      const entry = state.meals.find(m=>m.date===date && m.memberIdx===idx);
+      const val = entry ? Number(entry.count) : 0;
+      rowTotal += val;
+      colTotals[idx] += val;
+      row += `<td class="num">${val ? fmt(val) : '—'}</td>`;
+    });
+    row += `<td class="num">${fmt(rowTotal)}</td>`;
+    row += `<td><button class="del-btn" data-date="${date}" title="মুছুন">✕</button></td></tr>`;
+    tbody += row;
+  });
+
+  let totalRow = `<tr class="total-row"><td>মোট</td>`;
+  colTotals.forEach(v=> totalRow += `<td class="num">${fmt(v)}</td>`);
+  totalRow += `<td class="num">${fmt(colTotals.reduce((a,b)=>a+b,0))}</td><td></td></tr>`;
+
+  table.innerHTML = `<thead>${thead}</thead><tbody>${tbody}${totalRow}</tbody>`;
+  el.appendChild(table);
+
+  table.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const date = btn.getAttribute('data-date');
+      state.meals = state.meals.filter(m=>m.date !== date);
+      saveState();
+      render();
+    };
+  });
+
+  return el;
+}
+
+// ---------- render: bazar ----------
+function renderBazar(){
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">বাজার খরচ</h2>`;
+
+  const form = document.createElement('div');
+  form.className = 'grid-form';
+  form.innerHTML = `
+    <div class="field"><label>তারিখ</label><input type="date" id="bazar-date" value="${todayStr()}"></div>
+    <div class="field"><label>টাকা</label><input type="number" step="0.01" min="0" id="bazar-amount" placeholder="0"></div>
+    <div class="field"><label>বিবরণ (কে বাজার করলো ইত্যাদি)</label><input type="text" id="bazar-note" placeholder="যেমন: রহিম - মাছ, সবজি" style="min-width:220px;"></div>
+    <button class="btn" id="add-bazar-btn">যোগ করুন</button>
+  `;
+  el.appendChild(form);
+
+  form.querySelector('#add-bazar-btn').onclick = ()=>{
+    const date = form.querySelector('#bazar-date').value;
+    const amount = parseFloat(form.querySelector('#bazar-amount').value);
+    const note = form.querySelector('#bazar-note').value.trim();
+    if(!date || isNaN(amount) || amount <= 0){ alert('তারিখ ও সঠিক টাকার পরিমাণ দিন'); return; }
+    state.bazar.push({id:uid(), date, amount, note});
+    saveState();
+    render();
+  };
+
+  const sorted = [...state.bazar].sort((a,b)=> b.date.localeCompare(a.date));
+  if(sorted.length === 0){
+    const p = document.createElement('div');
+    p.className = 'empty-note';
+    p.textContent = 'এখনো কোনো বাজার এন্ট্রি নেই।';
+    el.appendChild(p);
+    return el;
+  }
+
+  const table = document.createElement('table');
+  let rows = '';
+  let total = 0;
+  sorted.forEach(b=>{
+    total += Number(b.amount||0);
+    rows += `<tr><td>${b.date}</td><td>${escapeHtml(b.note||'—')}</td><td class="num">৳ ${fmt(b.amount)}</td><td><button class="del-btn" data-id="${b.id}">✕</button></td></tr>`;
+  });
+  table.innerHTML = `
+    <thead><tr><th>তারিখ</th><th>বিবরণ</th><th class="num">টাকা</th><th></th></tr></thead>
+    <tbody>${rows}<tr class="total-row"><td colspan="2">মোট</td><td class="num">৳ ${fmt(total)}</td><td></td></tr></tbody>
+  `;
+  el.appendChild(table);
+
+  table.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.bazar = state.bazar.filter(b=>b.id !== btn.getAttribute('data-id'));
+      saveState();
+      render();
+    };
+  });
+
+  return el;
+}
+
+// ---------- render: extra ----------
+function renderExtra(){
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">এক্সট্রা খরচ (খালার বিল, বিদ্যুৎ বিল ইত্যাদি)</h2>`;
+
+  const form = document.createElement('div');
+  form.className = 'grid-form';
+  form.innerHTML = `
+    <div class="field"><label>তারিখ</label><input type="date" id="extra-date" value="${todayStr()}"></div>
+    <div class="field"><label>খাত</label><input type="text" id="extra-name" placeholder="যেমন: খালার বিল" style="min-width:180px;"></div>
+    <div class="field"><label>টাকা</label><input type="number" step="0.01" min="0" id="extra-amount" placeholder="0"></div>
+    <button class="btn" id="add-extra-btn">যোগ করুন</button>
+  `;
+  el.appendChild(form);
+
+  form.querySelector('#add-extra-btn').onclick = ()=>{
+    const date = form.querySelector('#extra-date').value;
+    const name = form.querySelector('#extra-name').value.trim();
+    const amount = parseFloat(form.querySelector('#extra-amount').value);
+    if(!date || !name || isNaN(amount) || amount <= 0){ alert('সব ঘর সঠিকভাবে পূরণ করুন'); return; }
+    state.extra.push({id:uid(), date, name, amount});
+    saveState();
+    render();
+  };
+
+  const sorted = [...state.extra].sort((a,b)=> b.date.localeCompare(a.date));
+  if(sorted.length === 0){
+    const p = document.createElement('div');
+    p.className = 'empty-note';
+    p.textContent = 'এখনো কোনো এক্সট্রা খরচ যোগ করা হয়নি।';
+    el.appendChild(p);
+    return el;
+  }
+
+  const table = document.createElement('table');
+  let rows = '';
+  let total = 0;
+  sorted.forEach(e=>{
+    total += Number(e.amount||0);
+    rows += `<tr><td>${e.date}</td><td>${escapeHtml(e.name)}</td><td class="num">৳ ${fmt(e.amount)}</td><td><button class="del-btn" data-id="${e.id}">✕</button></td></tr>`;
+  });
+  const n = state.members.length;
+  table.innerHTML = `
+    <thead><tr><th>তারিখ</th><th>খাত</th><th class="num">টাকা</th><th></th></tr></thead>
+    <tbody>${rows}
+      <tr class="total-row"><td colspan="2">মোট</td><td class="num">৳ ${fmt(total)}</td><td></td></tr>
+      <tr class="total-row"><td colspan="2">জনপ্রতি (÷${n})</td><td class="num">৳ ${fmt(n?total/n:0)}</td><td></td></tr>
+    </tbody>
+  `;
+  el.appendChild(table);
+
+  table.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.extra = state.extra.filter(e=>e.id !== btn.getAttribute('data-id'));
+      saveState();
+      render();
+    };
+  });
+
+  return el;
+}
+
+// ---------- render: deposits ----------
+function renderDeposits(){
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">জমা টাকা</h2>`;
+
+  const form = document.createElement('div');
+  form.className = 'grid-form';
+  let memberOptions = state.members.map((name, idx)=>`<option value="${idx}">${escapeHtml(name)}</option>`).join('');
+  form.innerHTML = `
+    <div class="field"><label>সদস্য</label><select id="deposit-member">${memberOptions}</select></div>
+    <div class="field"><label>তারিখ</label><input type="date" id="deposit-date" value="${todayStr()}"></div>
+    <div class="field"><label>টাকা</label><input type="number" step="0.01" min="0" id="deposit-amount" placeholder="0"></div>
+    <button class="btn" id="add-deposit-btn">যোগ করুন</button>
+  `;
+  el.appendChild(form);
+
+  form.querySelector('#add-deposit-btn').onclick = ()=>{
+    const memberIdx = parseInt(form.querySelector('#deposit-member').value);
+    const date = form.querySelector('#deposit-date').value;
+    const amount = parseFloat(form.querySelector('#deposit-amount').value);
+    if(isNaN(memberIdx) || !date || isNaN(amount) || amount <= 0){ alert('সব ঘর সঠিকভাবে পূরণ করুন'); return; }
+    state.deposits.push({id:uid(), date, memberIdx, amount});
+    saveState();
+    render();
+  };
+
+  const sorted = [...state.deposits].sort((a,b)=> b.date.localeCompare(a.date));
+  if(sorted.length === 0){
+    const p = document.createElement('div');
+    p.className = 'empty-note';
+    p.textContent = 'এখনো কোনো জমা এন্ট্রি নেই।';
+    el.appendChild(p);
+    return el;
+  }
+
+  const table = document.createElement('table');
+  let rows = '';
+  let total = 0;
+  sorted.forEach(d=>{
+    total += Number(d.amount||0);
+    rows += `<tr><td>${d.date}</td><td>${escapeHtml(state.members[d.memberIdx] || '—')}</td><td class="num">৳ ${fmt(d.amount)}</td><td><button class="del-btn" data-id="${d.id}">✕</button></td></tr>`;
+  });
+  table.innerHTML = `
+    <thead><tr><th>তারিখ</th><th>সদস্য</th><th class="num">টাকা</th><th></th></tr></thead>
+    <tbody>${rows}<tr class="total-row"><td colspan="2">মোট</td><td class="num">৳ ${fmt(total)}</td><td></td></tr></tbody>
+  `;
+  el.appendChild(table);
+
+  table.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.deposits = state.deposits.filter(d=>d.id !== btn.getAttribute('data-id'));
+      saveState();
+      render();
+    };
+  });
+
+  return el;
+}
+
+// ---------- render: members ----------
+function renderMembers(){
+  const el = document.createElement('div');
+  el.innerHTML = `<h2 class="section-title">সদস্যদের নাম</h2>`;
+
+  const grid = document.createElement('div');
+  grid.className = 'members-grid';
+  state.members.forEach((name, idx)=>{
+    const field = document.createElement('div');
+    field.className = 'field';
+    field.innerHTML = `<label>সদস্য ${idx+1}</label><input type="text" value="${escapeHtml(name)}" id="member-name-${idx}">`;
+    grid.appendChild(field);
+  });
+  el.appendChild(grid);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn';
+  saveBtn.textContent = 'নাম সংরক্ষণ করুন';
+  saveBtn.onclick = ()=>{
+    state.members.forEach((_, idx)=>{
+      const val = document.getElementById(`member-name-${idx}`).value.trim();
+      if(val) state.members[idx] = val;
+    });
+    saveState();
+    render();
+  };
+  el.appendChild(saveBtn);
+
+  return el;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : str;
+  return d.innerHTML;
+}
+
+function render(){
+  renderTabs();
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  let content;
+  switch(activeTab){
+    case 'dashboard': content = renderDashboard(); break;
+    case 'meals': content = renderMeals(); break;
+    case 'bazar': content = renderBazar(); break;
+    case 'extra': content = renderExtra(); break;
+    case 'deposits': content = renderDeposits(); break;
+    case 'members': content = renderMembers(); break;
+  }
+  main.appendChild(content);
+}
+
+(async function init(){
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>

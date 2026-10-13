@@ -369,25 +369,24 @@ function defaultState(){
 
 async function loadState(){
   try{
-    const res = await window.storage.get(STORAGE_KEY);
-    if(res && res.value){
-      state = JSON.parse(res.value);
-      // guard against missing keys if schema evolves
-      const d = defaultState();
-      state = Object.assign(d, state);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      state = Object.assign(defaultState(), JSON.parse(raw));
     } else {
       state = defaultState();
     }
   }catch(e){
+    console.error('লোড ব্যর্থ হয়েছে', e);
     state = defaultState();
   }
 }
 
 async function saveState(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }catch(e){
     console.error('সংরক্ষণ ব্যর্থ হয়েছে', e);
+    alert('ডেটা সেভ করা যায়নি। ব্রাউজারের Private/Incognito মোড বন্ধ করে চেষ্টা করুন।');
   }
 }
 
